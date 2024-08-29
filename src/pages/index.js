@@ -1,79 +1,84 @@
 import Link from "next/link";
 import dbConnect from "../lib/dbConnect";
 import Pet from "../models/Pet";
-
-// TODO: Import Hours component
-import Hours from '../components/Hours';
+import Hours from '../components/Hours'; // Importación del componente Hours
 
 const Index = ({ pets }) => {
-
   return (
     <>
-    <h1> HOOLAAAA CODIGO FACILITOOOO</h1>
-    <h1>Saludos desde CHI CHI CHI LE LE LE</h1>
-    <h2>Gabriela Andrea Moya Moreno</h2>
+      <h1> HOOLAAAA CODIGO FACILITOOOO</h1>
+      <h1>Saludos desde CHI CHI CHI LE LE LE</h1>
+      <h2>Gabriela Andrea Moya Moreno</h2>
 
-      {/* TODO: Display Hours component */}
+      {/* Mostrar el componente Hours */}
       <Hours />
 
+      {/* Crear una tarjeta para cada mascota */}
+      {pets.length > 0 ? (
+        pets.map((pet) => (
+          <div key={pet._id}>
+            <div className="card">
+              <img src={pet.image_url} alt={`${pet.name}`} />
+              <h5 className="pet-name">{pet.name}</h5>
+              <div className="main-content">
+                <p className="pet-name">{pet.name}</p>
+                <p className="owner">Owner: {pet.owner_name}</p>
 
-      {/* Create a card for each pet */}
-      {pets.map((pet) => (
-        <div key={pet._id}>
-          <div className="card">
-            <img src={pet.image_url} />
-            <h5 className="pet-name">{pet.name}</h5>
-            <div className="main-content">
-              <p className="pet-name">{pet.name}</p>
-              <p className="owner">Owner: {pet.owner_name}</p>
+                {/* Información adicional de la mascota: Likes y Dislikes */}
+                <div className="likes info">
+                  <p className="label">Likes</p>
+                  <ul>
+                    {pet.likes.map((data, index) => (
+                      <li key={index}>{data}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="dislikes info">
+                  <p className="label">Dislikes</p>
+                  <ul>
+                    {pet.dislikes.map((data, index) => (
+                      <li key={index}>{data}</li>
+                    ))}
+                  </ul>
+                </div>
 
-              {/* Extra Pet Info: Likes and Dislikes */}
-              <div className="likes info">
-                <p className="label">Likes</p>
-                <ul>
-                  {pet.likes.map((data, index) => (
-                    <li key={index}>{data} </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="dislikes info">
-                <p className="label">Dislikes</p>
-                <ul>
-                  {pet.dislikes.map((data, index) => (
-                    <li key={index}>{data} </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="btn-container">
-                <Link href="/[id]/edit" as={`/${pet._id}/edit`}>
-                  <button className="btn edit">Edit</button>
-                </Link>
-                <Link href="/[id]" as={`/${pet._id}`}>
-                  <button className="btn view">View</button>
-                </Link>
+                <div className="btn-container">
+                  <Link href="/[id]/edit" as={`/${pet._id}/edit`}>
+                    <button className="btn edit">Edit</button>
+                  </Link>
+                  <Link href="/[id]" as={`/${pet._id}`}>
+                    <button className="btn view">View</button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))
+      ) : (
+        <p>No pets found</p> // Mensaje alternativo si no hay mascotas
+      )}
     </>
   );
 };
 
-/* Retrieves pet(s) data from mongodb database */
+/* Recupera los datos de las mascotas desde la base de datos MongoDB */
 export async function getServerSideProps() {
-  await dbConnect();
+  try {
+    await dbConnect(); // Conexión a la base de datos
 
-  /* find all the data in our database */
-  const result = await Pet.find({});
-  const pets = result.map((doc) => {
-    const pet = doc.toObject();
-    pet._id = pet._id.toString();
-    return pet;
-  });
+    const result = await Pet.find({}); // Obtiene todas las mascotas
+    const pets = result.map((doc) => {
+      const pet = doc.toObject();
+      pet._id = pet._id.toString();
+      return pet;
+    });
 
-  return { props: { pets: pets } };
+    return { props: { pets } };
+  } catch (error) {
+    console.error("Error connecting to database:", error);
+    return { props: { pets: [] } }; // Devuelve un array vacío si falla la conexión
+  }
 }
 
 export default Index;
+
