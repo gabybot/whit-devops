@@ -9,6 +9,9 @@ const Index = ({ pets }) => {
 
   return (
     <>
+    <h1> HOOLAAAA CODIGO FACILITOOOO</h1>
+    <h1>Saludos desde CHI CHI CHI LE LE LE</h1>
+    <h2>Gabriela Andrea Moya Moreno</h2>
 
       {/* TODO: Display Hours component */}
       <Hours />
